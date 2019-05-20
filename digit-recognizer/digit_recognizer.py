@@ -6,9 +6,9 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import  LinearSVC
 from tensorflow.python import keras
 from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import Dense, Flatten, Conv2D, Dropout
+from tensorflow.python.keras.layers import Dense, Flatten, Conv2D
 
-
+"""Function to separate the data array into images"""
 def parse_img(img_array, size= 28):
     out = []
     for img_nbr in range(img_array.shape[0]):
@@ -16,6 +16,7 @@ def parse_img(img_array, size= 28):
 
     return np.array(out)
 
+"""Open datasets, assign data to corresponding variables"""
 train_dataset = pd.read_csv('train.csv')
 test_dataset = pd.read_csv('test.csv')
 
@@ -27,13 +28,16 @@ test_images = test_dataset.values[:, :]
 train_images = parse_img(train_images)
 test_images = parse_img(test_images)
 
+"""Uncomment to see random images, used to debug and make sure parsing was done correctly"""
 # for i in range(10):
 #     plt.imshow(random.choice(test_images))
 #     plt.show()
 
+"""Simple model test using sklearn models"""
 # model = OneVsRestClassifier(LinearSVC(random_state=0)).fit(train_images.reshape(train_images.shape[0], train_images.shape[1]*train_images.shape[2]), labels)
 # predicted_test = model.predict(test_images.reshape(test_images.shape[0], test_images.shape[1]*test_images.shape[2]))
 
+"""More complex CNN model"""
 img_rows, img_cols = 28, 28
 num_classes = 10
 
@@ -55,6 +59,7 @@ history = model.fit(train_images, keras.utils.to_categorical(labels),
           epochs=10,
           validation_split = 0.2)
 
+"""Print training history"""
 print(history.history.keys())
 # summarize history for accuracy
 plt.plot(history.history['acc'])
@@ -73,11 +78,9 @@ plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
 
+"""Predict and print to file"""
 predicted_test = model.predict(test_images)
+predicted_label = np.argmax(predicted_test, axis= 1)
 
-predicted_label = np.argmax(predicted_test, axis= 1)#.reshape(predicted_test.shape[0],)
 output = pd.DataFrame({'ImageId': list(range(1, test_images.shape[0]+1)), 'Label': predicted_label})
 output.to_csv('prediction_cnn1.csv', index=False)
-
-
-test = 1
